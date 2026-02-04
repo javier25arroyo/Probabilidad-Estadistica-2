@@ -1,9 +1,5 @@
-# ---------------------------
-# Simulación de uso de CPU (%)
-# Distribuciones sesgadas: Beta escalada y Log-normal escalada
-# ---------------------------
 set.seed(2026)
-n <- 2000  # cantidad de observaciones (>1000)
+n <- 2000  
 
 # 1) Beta escalada (sesgada a la derecha)
 cpu_beta <- rbeta(n, shape1 = 2, shape2 = 5) * 100
