@@ -1,0 +1,22 @@
+{
+  "name": "R Development Container",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "REditorSupport.r",
+        "Ikuyadeu.r-pack"
+      ],
+      "settings": {
+        "r.rterm.linux": "/usr/bin/R",
+        "r.bracketedPaste": true,
+        "r.plot.useHttpgd": true
+      }
+    }
+  },
+  "forwardPorts": [],
+  "postCreateCommand": "R --version",
+  "remoteUser": "vscode"
+}
