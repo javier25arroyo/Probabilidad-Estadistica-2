@@ -33,7 +33,7 @@ RUN groupadd --gid $USER_GID $USERNAME \
     && chmod 0440 /etc/sudoers.d/$USERNAME
 
 # Install commonly used R packages
-RUN R -e "install.packages(c('tidyverse', 'ggplot2', 'dplyr', 'readr', 'httpgd'), repos='https://cloud.r-project.org/')"
+RUN R -e "install.packages(c('tidyverse', 'httpgd'), repos='https://cloud.r-project.org/')"
 
 # Set working directory
 WORKDIR /workspace

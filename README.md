@@ -19,7 +19,7 @@ Este es un contenedor para ejecutar el programa R en GitHub Codespaces.
 
 El contenedor incluye:
 - **R** (última versión estable)
-- **Paquetes R preinstalados**: tidyverse, ggplot2, dplyr, readr, httpgd
+- **Paquetes R preinstalados**: tidyverse (incluye ggplot2, dplyr, readr, etc.), httpgd
 - **Extensiones de VS Code**: R Language Support, R Pack
 - **Herramientas del sistema**: git, curl, wget, vim, nano
 
