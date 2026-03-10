@@ -1,67 +1,195 @@
 # ==========================================
-# PRÁCTICA 1 - PROBABILIDAD Y ESTADÍSTICA 2
+# PRACTICA 1 - 12 GRAFICOS EN R
 # ==========================================
 
-# Configurar dispositivo gráfico para guardar en archivo
-png("graficos_practica1.png", width=1200, height=1200, res=120)
-par(mfrow=c(2,2)) # Para ver varios gráficos en la misma ventana
+# Crear carpeta para guardar gráficos
+dir.create("graficos_practica1", showWarnings = FALSE)
 
-# --- PROBLEMA A: GAMMA ---
-cat("--- Problema A: Gamma ---\n")
-prob_a1 <- pgamma(9, shape = 10, rate = 3)
-prob_a2 <- pgamma(1, shape = 1, rate = 3) - pgamma(0.5, shape = 1, rate = 3)
-perc_a3 <- qgamma(0.90, shape = 2, rate = 3)
+# ------------------------------------------
+# FUNCIONES AUXILIARES
+# ------------------------------------------
 
-cat("A1 (< 9 min):", prob_a1, "\nA2 (entre 0.5 y 1 min):", prob_a2, "\nA3 (Percentil 90):", perc_a3, "min\n\n")
+shade_left <- function(x, y, x_cut, col = "lightblue") {
+  xs <- x[x <= x_cut]
+  ys <- y[x <= x_cut]
+  polygon(c(min(xs), xs, max(xs)), c(0, ys, 0), col = col, border = NA)
+}
 
-# Gráfico para A1
-curve(dgamma(x, shape=10, rate=3), from=0, to=10, main="A. Gamma(10,3): P(X < 9)", xlab="Minutos", ylab="Densidad")
-x_poly <- seq(0, 9, length.out=100)
-y_poly <- dgamma(x_poly, shape=10, rate=3)
-polygon(c(0, x_poly, 9), c(0, y_poly, 0), col=rgb(0.2,0.4,0.8,0.5))
+shade_between <- function(x, y, x1, x2, col = "lightblue") {
+  xs <- x[x >= x1 & x <= x2]
+  ys <- y[x >= x1 & x <= x2]
+  polygon(c(min(xs), xs, max(xs)), c(0, ys, 0), col = col, border = NA)
+}
 
-# --- PROBLEMA B: EXPONENCIAL ---
-cat("--- Problema B: Exponencial ---\n")
-prob_b1 <- pexp(2, rate = 0.25)
-prob_b2 <- pexp(6, rate = 0.25) - pexp(3, rate = 0.25)
-perc_b3 <- qexp(0.90, rate = 0.25)
+shade_right <- function(x, y, x_cut, col = "lightblue") {
+  xs <- x[x >= x_cut]
+  ys <- y[x >= x_cut]
+  polygon(c(min(xs), xs, max(xs)), c(0, ys, 0), col = col, border = NA)
+}
 
-cat("B1 (< 2 seg):", prob_b1, "\nB2 (entre 3 y 6 seg):", prob_b2, "\nB3 (Percentil 90):", perc_b3, "seg\n\n")
+# ==========================================
+# PROBLEMA A - GAMMA
+# ==========================================
 
-# Gráfico para B2
-curve(dexp(x, rate=0.25), from=0, to=15, main="B. Exponencial(0.25): P(3 < X < 6)", xlab="Segundos", ylab="Densidad")
-x_poly <- seq(3, 6, length.out=100)
-y_poly <- dexp(x_poly, rate=0.25)
-polygon(c(3, x_poly, 6), c(0, y_poly, 0), col=rgb(0.8,0.2,0.2,0.5))
-
-# --- PROBLEMA C: BETA ---
-cat("--- Problema C: Beta ---\n")
-prob_c1 <- pbeta(0.60, 14, 6)
-prob_c2 <- 1 - pbeta(0.90, 14, 6)
-perc_c3 <- qbeta(0.90, 14, 6)
-
-cat("C1 (< 60%):", prob_c1, "\nC2 (Fallo < 10% / Éxito > 90%):", prob_c2, "\nC3 (Percentil 90):", perc_c3, "\n\n")
-
-# Gráfico para C1
-curve(dbeta(x, 14, 6), from=0, to=1, main="C. Beta(14,6): P(X < 0.60)", xlab="Tasa de Éxito", ylab="Densidad")
-x_poly <- seq(0, 0.60, length.out=100)
-y_poly <- dbeta(x_poly, 14, 6)
-polygon(c(0, x_poly, 0.60), c(0, y_poly, 0), col=rgb(0.2,0.8,0.2,0.5))
-
-# --- PROBLEMA D: NORMAL ---
-cat("--- Problema D: Normal ---\n")
-prob_d1 <- pnorm(2.5, mean=2.8, sd=0.3)
-prob_d2 <- pnorm(3.0, mean=2.8, sd=0.3) - pnorm(2.6, mean=2.8, sd=0.3)
-perc_d3 <- qnorm(0.95, mean=2.8, sd=0.3)
-
-cat("D1 (< 2.5 seg):", prob_d1, "\nD2 (entre 2.6 y 3.0 seg):", prob_d2, "\nD3 (Percentil 95):", perc_d3, "seg\n")
-
-# Gráfico para D2
-curve(dnorm(x, 2.8, 0.3), from=1.9, to=3.7, main="D. Normal(2.8, 0.3): P(2.6 < X < 3.0)", xlab="Segundos", ylab="Densidad")
-x_poly <- seq(2.6, 3.0, length.out=100)
-y_poly <- dnorm(x_poly, 2.8, 0.3)
-polygon(c(2.6, x_poly, 3.0), c(0, y_poly, 0), col=rgb(0.8,0.6,0.2,0.5))
-
-# Cerrar el dispositivo gráfico y resetear parámetros
+# A1: P(X < 9), X ~ Gamma(10, 3)
+png("graficos_practica1/A1_gamma_menor_9.png", width = 900, height = 600)
+x <- seq(0, 10, length.out = 1000)
+y <- dgamma(x, shape = 10, rate = 3)
+plot(x, y, type = "l", lwd = 2, main = "Problema A(a): P(X < 9) - Gamma(10, 3)",
+     xlab = "Tiempo (minutos)", ylab = "Densidad")
+shade_left(x, y, 9)
+abline(v = 9, col = "red", lwd = 2, lty = 2)
+legend("topright", legend = c("Área: P(X < 9)", "x = 9"),
+       fill = c("lightblue", NA), border = c(NA, NA),
+       lty = c(NA, 2), col = c(NA, "red"), bty = "n")
 dev.off()
-cat("\n✓ Gráficos guardados en 'graficos_practica1.png'\n")
+
+# A2: P(0.5 < X < 1), X ~ Gamma(1, 3)
+png("graficos_practica1/A2_gamma_entre_05_y_1.png", width = 900, height = 600)
+x <- seq(0, 3, length.out = 1000)
+y <- dgamma(x, shape = 1, rate = 3)
+plot(x, y, type = "l", lwd = 2, main = "Problema A(b): P(0.5 < X < 1) - Gamma(1, 3)",
+     xlab = "Tiempo (minutos)", ylab = "Densidad")
+shade_between(x, y, 0.5, 1)
+abline(v = c(0.5, 1), col = "red", lwd = 2, lty = 2)
+dev.off()
+
+# A3: Percentil 90, X ~ Gamma(2, 3)
+qA3 <- qgamma(0.90, shape = 2, rate = 3)
+png("graficos_practica1/A3_gamma_percentil_90.png", width = 900, height = 600)
+x <- seq(0, 3, length.out = 1000)
+y <- dgamma(x, shape = 2, rate = 3)
+plot(x, y, type = "l", lwd = 2, main = "Problema A(c): Percentil 90 - Gamma(2, 3)",
+     xlab = "Tiempo (minutos)", ylab = "Densidad")
+shade_left(x, y, qA3)
+abline(v = qA3, col = "blue", lwd = 2, lty = 2)
+text(qA3, max(y)*0.8, labels = paste0("q = ", round(qA3, 3)), pos = 4)
+dev.off()
+
+# ==========================================
+# PROBLEMA B - EXPONENCIAL
+# ==========================================
+
+# B1: P(X < 2), X ~ Exp(0.25)
+png("graficos_practica1/B1_exp_menor_2.png", width = 900, height = 600)
+x <- seq(0, 20, length.out = 1000)
+y <- dexp(x, rate = 0.25)
+plot(x, y, type = "l", lwd = 2, main = "Problema B(a): P(X < 2) - Exp(0.25)",
+     xlab = "Tiempo (segundos)", ylab = "Densidad")
+shade_left(x, y, 2)
+abline(v = 2, col = "red", lwd = 2, lty = 2)
+dev.off()
+
+# B2: P(3 < X < 6)
+png("graficos_practica1/B2_exp_entre_3_y_6.png", width = 900, height = 600)
+x <- seq(0, 20, length.out = 1000)
+y <- dexp(x, rate = 0.25)
+plot(x, y, type = "l", lwd = 2, main = "Problema B(b): P(3 < X < 6) - Exp(0.25)",
+     xlab = "Tiempo (segundos)", ylab = "Densidad")
+shade_between(x, y, 3, 6)
+abline(v = c(3, 6), col = "red", lwd = 2, lty = 2)
+dev.off()
+
+# B3: Percentil 90
+qB3 <- qexp(0.90, rate = 0.25)
+png("graficos_practica1/B3_exp_percentil_90.png", width = 900, height = 600)
+x <- seq(0, 20, length.out = 1000)
+y <- dexp(x, rate = 0.25)
+plot(x, y, type = "l", lwd = 2, main = "Problema B(c): Percentil 90 - Exp(0.25)",
+     xlab = "Tiempo (segundos)", ylab = "Densidad")
+shade_left(x, y, qB3)
+abline(v = qB3, col = "blue", lwd = 2, lty = 2)
+text(qB3, max(y)*0.8, labels = paste0("q = ", round(qB3, 2)), pos = 4)
+dev.off()
+
+# ==========================================
+# PROBLEMA C - BETA
+# ==========================================
+
+# C1: P(X < 0.60), X ~ Beta(14, 6)
+png("graficos_practica1/C1_beta_menor_060.png", width = 900, height = 600)
+x <- seq(0, 1, length.out = 1000)
+y <- dbeta(x, shape1 = 14, shape2 = 6)
+plot(x, y, type = "l", lwd = 2, main = "Problema C(a): P(X < 0.60) - Beta(14, 6)",
+     xlab = "Tasa de éxito", ylab = "Densidad")
+shade_left(x, y, 0.60)
+abline(v = 0.60, col = "red", lwd = 2, lty = 2)
+dev.off()
+
+# C2: P(X > 0.90) equivalente a fallo < 0.10
+png("graficos_practica1/C2_beta_exito_mayor_090.png", width = 900, height = 600)
+x <- seq(0, 1, length.out = 1000)
+y <- dbeta(x, shape1 = 14, shape2 = 6)
+plot(x, y, type = "l", lwd = 2, main = "Problema C(b): P(X > 0.90) - Beta(14, 6)",
+     xlab = "Tasa de éxito", ylab = "Densidad")
+shade_right(x, y, 0.90)
+abline(v = 0.90, col = "red", lwd = 2, lty = 2)
+dev.off()
+
+# C3: Percentil 90
+qC3 <- qbeta(0.90, shape1 = 14, shape2 = 6)
+png("graficos_practica1/C3_beta_percentil_90.png", width = 900, height = 600)
+x <- seq(0, 1, length.out = 1000)
+y <- dbeta(x, shape1 = 14, shape2 = 6)
+plot(x, y, type = "l", lwd = 2, main = "Problema C(c): Percentil 90 - Beta(14, 6)",
+     xlab = "Tasa de éxito", ylab = "Densidad")
+shade_left(x, y, qC3)
+abline(v = qC3, col = "blue", lwd = 2, lty = 2)
+text(qC3, max(y)*0.8, labels = paste0("q = ", round(qC3, 4)), pos = 4)
+dev.off()
+
+# ==========================================
+# PROBLEMA D - NORMAL
+# ==========================================
+
+# D1: P(X < 2.5), X ~ N(2.8, 0.3)
+png("graficos_practica1/D1_norm_menor_25.png", width = 900, height = 600)
+x <- seq(1.8, 3.8, length.out = 1000)
+y <- dnorm(x, mean = 2.8, sd = 0.3)
+plot(x, y, type = "l", lwd = 2, main = "Problema D(a): P(X < 2.5) - N(2.8, 0.3)",
+     xlab = "Tiempo (segundos)", ylab = "Densidad")
+shade_left(x, y, 2.5)
+abline(v = 2.5, col = "red", lwd = 2, lty = 2)
+dev.off()
+
+# D2: P(2.6 < X < 3.0)
+png("graficos_practica1/D2_norm_entre_26_y_30.png", width = 900, height = 600)
+x <- seq(1.8, 3.8, length.out = 1000)
+y <- dnorm(x, mean = 2.8, sd = 0.3)
+plot(x, y, type = "l", lwd = 2, main = "Problema D(b): P(2.6 < X < 3.0) - N(2.8, 0.3)",
+     xlab = "Tiempo (segundos)", ylab = "Densidad")
+shade_between(x, y, 2.6, 3.0)
+abline(v = c(2.6, 3.0), col = "red", lwd = 2, lty = 2)
+dev.off()
+
+# D3: Percentil 95
+qD3 <- qnorm(0.95, mean = 2.8, sd = 0.3)
+png("graficos_practica1/D3_norm_percentil_95.png", width = 900, height = 600)
+x <- seq(1.8, 3.8, length.out = 1000)
+y <- dnorm(x, mean = 2.8, sd = 0.3)
+plot(x, y, type = "l", lwd = 2, main = "Problema D(c): Percentil 95 - N(2.8, 0.3)",
+     xlab = "Tiempo (segundos)", ylab = "Densidad")
+shade_left(x, y, qD3)
+abline(v = qD3, col = "blue", lwd = 2, lty = 2)
+text(qD3, max(y)*0.8, labels = paste0("q = ", round(qD3, 3)), pos = 4)
+dev.off()
+
+# ==========================================
+# RESULTADOS NUMERICOS
+# ==========================================
+
+cat("Problema A(a):", pgamma(9, shape = 10, rate = 3), "\n")
+cat("Problema A(b):", pgamma(1, shape = 1, rate = 3) - pgamma(0.5, shape = 1, rate = 3), "\n")
+cat("Problema A(c):", qgamma(0.90, shape = 2, rate = 3), "\n\n")
+
+cat("Problema B(a):", pexp(2, rate = 0.25), "\n")
+cat("Problema B(b):", pexp(6, rate = 0.25) - pexp(3, rate = 0.25), "\n")
+cat("Problema B(c):", qexp(0.90, rate = 0.25), "\n\n")
+
+cat("Problema C(a):", pbeta(0.60, shape1 = 14, shape2 = 6), "\n")
+cat("Problema C(b):", 1 - pbeta(0.90, shape1 = 14, shape2 = 6), "\n")
+cat("Problema C(c):", qbeta(0.90, shape1 = 14, shape2 = 6), "\n\n")
+
+cat("Problema D(a):", pnorm(2.5, mean = 2.8, sd = 0.3), "\n")
+cat("Problema D(b):", pnorm(3.0, mean = 2.8, sd = 0.3) - pnorm(2.6, mean = 2.8, sd = 0.3), "\n")
+cat("Problema D(c):", qnorm(0.95, mean = 2.8, sd = 0.3), "\n")
