@@ -1,0 +1,300 @@
+---
+title: "Práctica 3 - Pruebas de Hipótesis"
+author: "Javier Pérez Arroyo"
+date: "2026-03-25"
+output: pdf_document
+fontsize: 11pt
+geometry: margin=1in
+header-includes:
+  - \usepackage{amsmath}
+  - \usepackage{booktabs}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+# Práctica 3
+
+## Pruebas de Hipótesis
+
+**Estudiante:** Javier Pérez Arroyo  
+**Fecha:** 2026-03-25
+
+---
+
+### Contexto general
+
+En esta práctica se desarrollan cinco pruebas de hipótesis con sus cinco pasos estándar:
+
+1. Planteamiento de hipótesis.
+2. Nivel de significancia.
+3. Estadístico de prueba y p-valor.
+4. Regla de decisión.
+5. Conclusión en contexto.
+
+---
+
+### Resumen de decisiones
+
+```{r resumen-inicial}
+resumen <- data.frame(
+  Problema = c("1", "2", "3", "4", "5"),
+  Decision = c("Se rechaza H0", "Se rechaza H0", "Se rechaza H0", "Se rechaza H0", "No se rechaza H0")
+)
+
+knitr::kable(resumen, booktabs = TRUE, align = "c", caption = "Resumen general de decisiones")
+```
+
+---
+
+# Problema 1
+
+**Situación:** Una API de autenticación promete responder en menos de 250 ms.
+
+**Datos:**
+
+| Elemento | Valor |
+|---|---:|
+| Tamaño de muestra | $n = 40$ |
+| Media muestral | $\bar{x} = 243$ ms |
+| Desviación poblacional | $\sigma = 30$ ms |
+| Media hipotética | $\mu_0 = 250$ ms |
+| Nivel de significancia | $\alpha = 0.05$ |
+
+**Paso 1:**
+- $H_0: \mu \ge 250$
+- $H_1: \mu < 250$
+
+**Paso 2:** Nivel de significancia $\alpha = 0.05$.
+
+```{r p1}
+n1 <- 40
+xbar1 <- 243
+mu0_1 <- 250
+sigma1 <- 30
+alpha1 <- 0.05
+
+z1 <- (xbar1 - mu0_1) / (sigma1 / sqrt(n1))
+p1 <- pnorm(z1)
+zcrit1 <- qnorm(alpha1)
+
+z1; zcrit1; p1
+```
+
+**Paso 4:** Se rechaza $H_0$ si el p-valor es menor que $\alpha$.
+
+**Paso 5 (conclusión):**
+
+```{r p1_conclusion}
+if (p1 < alpha1) {
+  cat("Se rechaza H0. Hay evidencia para afirmar que el promedio es menor a 250 ms.")
+} else {
+  cat("No se rechaza H0. No hay evidencia suficiente para afirmar que el promedio es menor a 250 ms.")
+}
+```
+
+---
+
+# Problema 2
+
+**Situación:** Una nueva herramienta CI/CD busca reducir la proporción de fallos.
+
+**Datos:**
+
+| Elemento | Valor |
+|---|---:|
+| Tamaño de muestra | $n = 150$ |
+| Fallos observados | $x = 22$ |
+| Proporción muestral | $\hat{p} = 22/150$ |
+| Proporción histórica | $p_0 = 0.20$ |
+| Nivel de significancia | $\alpha = 0.10$ |
+
+**Paso 1:**
+- $H_0: p \ge 0.20$
+- $H_1: p < 0.20$
+
+**Paso 2:** Nivel de significancia $\alpha = 0.10$.
+
+```{r p2}
+n2 <- 150
+x2 <- 22
+phat2 <- x2 / n2
+p0_2 <- 0.20
+alpha2 <- 0.10
+
+z2 <- (phat2 - p0_2) / sqrt(p0_2 * (1 - p0_2) / n2)
+p2 <- pnorm(z2)
+zcrit2 <- qnorm(alpha2)
+
+phat2; z2; zcrit2; p2
+```
+
+**Paso 4:** Se rechaza $H_0$ si el p-valor es menor que $\alpha$.
+
+```{r p2_conclusion}
+if (p2 < alpha2) {
+  cat("Se rechaza H0. Sí hay evidencia de que la proporción de fallos disminuyó.")
+} else {
+  cat("No se rechaza H0. No hay evidencia suficiente de disminución en la proporción de fallos.")
+}
+```
+
+---
+
+# Problema 3
+
+**Situación:** Se comparan los tiempos de ejecución entre MongoDB y PostgreSQL.
+
+**Datos resumidos:**
+
+| Sistema | Media | Desviación estándar | n |
+|---|---:|---:|---:|
+| MongoDB | 303.4 ms | 7.89 ms | 30 |
+| PostgreSQL | 275.8 ms | 5.43 ms | 30 |
+| Nivel de significancia |  |  | $\alpha = 0.05$ |
+
+**Paso 1:**
+- $H_0: \mu_P \ge \mu_M$
+- $H_1: \mu_P < \mu_M$
+
+**Paso 2:** Nivel de significancia $\alpha = 0.05$.
+
+```{r p3}
+n_m <- 30; xbar_m <- 303.4; s_m <- 7.89
+n_p <- 30; xbar_p <- 275.8; s_p <- 5.43
+alpha3 <- 0.05
+
+se3 <- sqrt((s_p^2 / n_p) + (s_m^2 / n_m))
+t3 <- (xbar_p - xbar_m) / se3
+df3 <- ((s_p^2 / n_p + s_m^2 / n_m)^2) /
+  (((s_p^2 / n_p)^2 / (n_p - 1)) + ((s_m^2 / n_m)^2 / (n_m - 1)))
+p3 <- pt(t3, df = df3)
+tcrit3 <- qt(alpha3, df = df3)
+
+t3; df3; tcrit3; p3
+```
+
+**Paso 4:** Se rechaza $H_0$ si el p-valor es menor que $\alpha$.
+
+```{r p3_conclusion}
+if (p3 < alpha3) {
+  cat("Se rechaza H0. Sí se puede afirmar que PostgreSQL tiene menor tiempo promedio.")
+} else {
+  cat("No se rechaza H0. No se puede afirmar que PostgreSQL tenga menor tiempo promedio.")
+}
+```
+
+---
+
+# Problema 4
+
+**Situación:** Se quiere determinar si hay diferencia en satisfacción entre móvil y web.
+
+**Datos:**
+
+| Plataforma | Satisfechos | Total | Proporción |
+|---|---:|---:|---:|
+| Móvil | 120 | 150 | 0.8000 |
+| Web | 100 | 160 | 0.6250 |
+| Nivel de significancia |  |  | $\alpha = 0.05$ |
+
+**Paso 1:**
+- $H_0: p_1-p_2=0$
+- $H_1: p_1-p_2\ne 0$
+
+**Paso 2:** Nivel de significancia $\alpha = 0.05$.
+
+```{r p4}
+x_movil <- 120; n_movil <- 150
+x_web <- 100; n_web <- 160
+alpha4 <- 0.05
+
+p_movil <- x_movil / n_movil
+p_web <- x_web / n_web
+p_pool <- (x_movil + x_web) / (n_movil + n_web)
+
+se4 <- sqrt(p_pool * (1 - p_pool) * (1 / n_movil + 1 / n_web))
+z4 <- (p_movil - p_web) / se4
+p4 <- 2 * (1 - pnorm(abs(z4)))
+zcrit4 <- qnorm(1 - alpha4 / 2)
+
+p_movil; p_web; z4; zcrit4; p4
+```
+
+**Paso 4:** Se rechaza $H_0$ si el p-valor es menor que $\alpha$.
+
+```{r p4_conclusion}
+if (p4 < alpha4) {
+  cat("Se rechaza H0. Sí existe diferencia significativa entre proporciones de satisfacción.")
+} else {
+  cat("No se rechaza H0. No existe diferencia significativa entre proporciones de satisfacción.")
+}
+```
+
+---
+
+# Problema 5
+
+**Situación:** Se analiza si la nueva versión del microservicio consume memoria con menor varianza.
+
+**Datos:**
+
+| Elemento | Valor |
+|---|---:|
+| Varianza histórica | $\sigma_0^2 = 16$ MB$^2$ |
+| Tamaño de muestra | $n = 20$ |
+| Varianza muestral | $s^2 = 9$ MB$^2$ |
+| Nivel de significancia | $\alpha = 0.01$ |
+
+**Paso 1:**
+- $H_0: \sigma^2 \ge 16$
+- $H_1: \sigma^2 < 16$
+
+**Paso 2:** Nivel de significancia $\alpha = 0.01$.
+
+```{r p5}
+sigma0_sq <- 16
+n5 <- 20
+s5_sq <- 9
+alpha5 <- 0.01
+gl5 <- n5 - 1
+
+chi5 <- (gl5 * s5_sq) / sigma0_sq
+chi_crit5 <- qchisq(alpha5, df = gl5)
+p5 <- pchisq(chi5, df = gl5)
+
+chi5; chi_crit5; p5
+```
+
+**Paso 4:** Se rechaza $H_0$ si el p-valor es menor que $\alpha$.
+
+```{r p5_conclusion}
+if (p5 < alpha5) {
+  cat("Respuesta: Sí. Con 99% de confianza, se puede afirmar que la nueva versión tiene menor varianza en el consumo de memoria.")
+} else {
+  cat("Respuesta: No. Con 99% de confianza, no se puede afirmar que la nueva versión tenga menor varianza en el consumo de memoria.")
+}
+```
+
+---
+
+# Resumen Ejecutivo
+
+```{r resumen}
+decision <- function(pv, a) ifelse(pv < a, "Se rechaza H0", "No se rechaza H0")
+
+resumen_final <- data.frame(
+  Problema = c("1", "2", "3", "4", "5"),
+  Tema = c("API", "CI/CD", "MongoDB vs PostgreSQL", "Móvil vs web", "Varianza memoria"),
+  Decision = c(
+    decision(p1, alpha1),
+    decision(p2, alpha2),
+    decision(p3, alpha3),
+    decision(p4, alpha4),
+    decision(p5, alpha5)
+  )
+)
+
+knitr::kable(resumen_final, booktabs = TRUE, align = "c", caption = "Decisiones finales de la práctica")
+```
